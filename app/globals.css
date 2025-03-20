@@ -3,13 +3,48 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --bg: var(--gradient);
+  --black: #000;
+  --card-border: #ffb800;
+  --card-footer: white;
+  --circle: #fffcf4;
+  --fg: #000;
+  --font-primary: "Funnel Sans", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  --font-secondary: "Nunito";
+  --font-tertiary: "Inter";
+  --gradient: linear-gradient(315.01deg, var(--orange-gradient) 8.31%, var(--yellow) 88.22%);
+  --orange: #ff710d;
+  --orange-gradient: #ff710d;
+  --spacer: max(20px, 3.472vw);
+  --spacer-b: max(16px, 1.528vw);
+  --spacer-m: max(10px, 1.111vw);
+  --white: #fff;
+  --yellow: #ffb800;
+  --product-left: -300px;
+  --gradient-blue: linear-gradient(155.92deg, rgb(146, 157, 255) 5.36%, rgba(63, 82, 255, 0) 85.08%);
+  --gradient3: linear-gradient(154.45deg, rgba(0, 26, 255, 0.39) -60.92%, rgba(0, 26, 255, 0) 34.15%, rgba(0, 26, 255, 0.39) 108.43%);
+  --blue: rgb(111, 0, 255);
+  --bg1: #FFFBF0;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-primary);
+  --font-mono: var(--font-primary);
+  /* --font-primary: "GT Flexa Ext", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  --font-secondary: "Peak Rounded";
+  --font-tertiary: "GT Flexa Medium"; */
+  --font-primary: "Funnel Sans", -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  --font-secondary: "Nunito";
+  --font-tertiary: "Inter";
+  --color-yellow: var(--yellow);
+  --color-orange: var(--orange);
+  --gradient: var(--gradient);
+  --gradient-blue: var(--gradient-blue);
+  --gradient3: var(--gradient3);
+  --color-blue: var(--blue);
+  --color-bg1: var(--bg1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,8 +54,137 @@
   }
 }
 
+
+@layer base {
+  h1 {
+    @apply leading-[0.78] font-extrabold font-primary;
+    font-size: max(54px, 13vw);
+  }
+
+  h2 {
+    @apply leading-[0.9] font-semibold ;
+    font-size: max(44px, 6.806vw);
+  }
+
+  h3 {
+    @apply leading-[0.9] font-medium ;
+    font-size: max(36px, 4.514vw)
+  }
+
+  h4 {
+    @apply leading-none font-medium font-tertiary;
+    font-size: max(32px, 3.056vw)
+  }
+
+  h5 {
+    @apply leading-[1.1] font-secondary;
+    font-size: max(18px, 1.528vw)
+  }
+
+  h6 {
+    @apply leading-[1.4] font-secondary;
+    font-size: max(12px, .903vw);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply uppercase;
+  }
+
+  p {
+    @apply leading-tight font-normal font-secondary normal-case;
+    font-size: max(16px, 1.111vw);
+  }
+  a, button, input[type='submit'] {
+    @apply cursor-pointer font-secondary;
+  }
+  a {
+    @apply hover:underline decoration-3 underline-offset-[0.9vw] leading-[1.2] ;
+  }
+  button {
+    transition: color .25s ease, background-color .25s ease, filter .25s ease, -webkit-filter .25s ease;
+  }
+  li {
+    @apply relative uppercase leading-[1.2] font-secondary m-0;
+    padding: .694vw 2.222vw;
+    font-size: max(16px, 1.389vw)
+  }
+}
+
+@layer components {
+  .container-fluid {
+    @apply max-w-full w-full px-4 lg:px-12;
+  }
+  .btn-outline {
+    @apply inline-block relative outline-none border-2 
+    border-white rounded-[26px] bg-transparent uppercase leading-none text-white font-normal
+    hover:bg-white hover:text-black;
+    font-size: max(18px, 1.389vw);
+    padding: .972vw 1.944vw;
+  }
+
+
+  #product {
+    transform: translate(-50%, -50%);
+    padding: 32px;
+    /* width: 280px;
+    height: 500px; */
+    /* background: red; */
+  }
+
+  #product .soda {
+    position: relative;
+    z-index: 2;
+    width: 320px;
+    aspect-ratio: 739 / 1008;
+    background: url('/wrap2.png') var(--product-left) 0 , url('/bottle.png');
+    background-size: auto 100%;
+    mask-image: url('/bottle.png');
+    background-blend-mode: multiply;
+    mask-size: auto 100%;
+
+    box-shadow: inset -24px -16px 16px rgba(0, 0, 0, 0.5);
+
+    
+    /* transition: 0.7s; */
+  }
+
+  .mycard {
+    @apply border-[1.5px] rounded-md p-3 relative overflow-hidden;
+    border-color: var(--card-border);
+    width: max(246px, 21.944vw);
+    height: max(200px, 15.556vw);
+    .footer {
+      @apply absolute bottom-0 border-t-[1.5px] w-full left-0 h-11 px-3 flex items-center;
+      border-color: var(--card-border);
+      background-color: var(--card-footer);
+    }
+  }
+
+}
+
+@layer utilities {
+  .bg-custom-gradient {
+    background-image: var(--gradient);
+  }
+  .translate-my-3d {
+    transform: translate3d(0px, -10.4583px, 0px)
+  }
+  .text-mystroke {
+    -webkit-text-stroke: 1px white;
+  }
+  .text-mystroke-black {
+    -webkit-text-stroke: 1px black;
+  }
+}
+
 body {
-  background: var(--background);
+  background: transparent;
+  will-change: background;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-primary);
 }
