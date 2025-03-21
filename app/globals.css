@@ -113,6 +113,9 @@
     padding: .694vw 2.222vw;
     font-size: max(16px, 1.389vw)
   }
+  img {
+    max-width: unset;
+  }
 }
 
 @layer components {
