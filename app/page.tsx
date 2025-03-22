@@ -1,7 +1,6 @@
 'use client'
-import { useScroll, motion, useTransform, useInView } from "motion/react";
-import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useScroll, motion, useTransform, useInView, useSpring } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
 
@@ -9,13 +8,16 @@ export default function Home() {
   const ref2 = useRef(null)
   const refSection1 = useRef(null)
   const refSection2 = useRef(null)
-  const refSec21 = useRef(null)
   const refSection3 = useRef(null)
   const refVegan = useRef(null)
   const testimonialRef = useRef(null)
   const boostedRef = useRef(null)
-  
-  const {scrollYProgress: bodyYProgess} = useScroll()
+  const width = 500
+  const height = 500
+
+  const {scrollY: bodyYProgess} = useScroll({
+    layoutEffect: false
+  })
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "center start"]
@@ -46,23 +48,24 @@ export default function Home() {
     offset: ['start end', 'end center']
   })
 
+  const pContRef = useRef<any>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const preloadedImages = useRef<HTMLImageElement[]>([]);
+  const frameIndex = useTransform(bodyYProgess, [0, 299], [0, 299/8], {clamp: false});
+  const [imageIndex, setImageIndex] = useState(0)
+
+
   const circleY = useTransform(tSProgress, [0,1], [0,-300])
   const test1Y = useTransform(tSProgress, [0,1], [0,100])
   const test2Y = useTransform(tSProgress, [0,1], [0,200])
   const test3Y = useTransform(tSProgress, [0,1], [0,300])
 
-  const section1InView = useInView(refSection1, { amount: 0.01 });
   const section2InView = useInView(refSection2, { amount: 0.01 });
   const section3InView = useInView(refSection3, { amount: 0.01 });
   const veganInView = useInView(refVegan, {amount: 0.1})
   const boostedInView = useInView(boostedRef, {amount: 0.3})
 
 
-  const gradient2 = useTransform(progress2, [0,0.1], [
-    '',
-    'var(--gradient-blue)'
-  ])
-  const bg2 = useTransform(progress2, [0,0.3], ['transparent', 'rgb(111, 0, 255)'])
 
   const scale1 = useTransform(progress1, [0,0.4], [1, 4])
   const scale2 = useTransform(progress1, [0.25, 0.6], [1, 4]);
@@ -115,28 +118,66 @@ export default function Home() {
   const rotate24 = useTransform(progress2, [0.3,0.5, 0.8, 1], [-40, 0, 0, 40]);
   
 
-  const x = useTransform(scrollYProgress, [0, 1], ["0", "50%" ])
-  const right = useTransform(scrollYProgress, [0,1], ["3rem", '50%'])
 
-  const productLeft = useTransform(bodyYProgess, [0, 1], ["0px", "-500px"]);
+  const x = useTransform(scrollYProgress, [0, 1], ["0", "-35vw" ]) // -50vw + half width of canvas
+  const h = useTransform(progress1, [0, 1], ["0px", "30vw" ]) // -50vw + half width of canvas
+
 
   const y = useTransform(y2, [0, 1], [0, -150]); 
-  // const yscroll = useTransform(bodyYProgess)
 
   useEffect(() => {
-    productLeft.onChange((latest) => {
-      // console.log('latest', latest)
-      document.documentElement.style.setProperty("--product-left", latest);
+
+    const unsubscribe = frameIndex.on("change", (latest) => {
+      let index = Math.floor(latest % 300);
+      setImageIndex(index)
+     
     });
-  }, [productLeft]);
 
-  scale1.on('change' , (val) => {
-    console.log('change', val)
+    return () => unsubscribe();
+
+  }, [frameIndex])
+
+  useEffect(() => {
+    console.log('imageIndex', imageIndex)
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+
+    const img = preloadedImages.current[imageIndex];
+    if (img?.complete) {
+      ctx.clearRect(0, 0, width, height); // Adjust size as needed
+      ctx.drawImage(img, -62, -62, width + 124, height + 124);
+    }
+  }, [imageIndex])
+
+
+
+  useEffect(() => {
+
+    let img0
+    // Preload images once
+    for (let i = 0; i < 300; i++) {
+      const img = new window.Image();
+      img.src = `/productt/image_${i}.png`
+      if (i == 0) {
+        img0 = img
+      }
+      preloadedImages.current.push(img)
+    }
+    
+    const ctx = canvasRef.current?.getContext("2d");
+    if (img0 && ctx) {
+      img0.onload = () => {
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(img0, -62, -62, width + 124, height + 124);
+      }
+    }
+
+  }, []);
+
+
+  scrollYProgress.on('change', (latest) => {
+    console.log('scrollYProgress', latest)
   })
-
-  // useEffect(() => {
-  //   console.log('section2InView', section2InView)
-  // }, [section2InView])
 
 
   // change background color
@@ -166,18 +207,20 @@ export default function Home() {
 
 
 
-
-
   return (
-    <>
+    <div className="overflow-visible">
       <div style={{ background: `var(--bg)` }} className="fixed top-0 left-0 right-0 h-screen -z-50 transition-all duration-500"></div>
 
-      <motion.div style={{x, right }} id="product" className={` ${boostedInView ? 'hidden ' : 'fixed top-[200px]'} z-40`}>
+      <motion.div ref={pContRef} style={{ x, height: h }}  className="sticky top-[200px] ml-auto w-fit z-40 h-0" >
+        <canvas ref={canvasRef} width={500} height={500} className="z-20  w-[30vw]" />
+        {/* <img src="/productt/image_0.png" className="absolute top-0 -z-10 w-[30vw]" width={500} height={500} /> */}
+      </motion.div>
+      {/* <motion.div style={{x, right }} id="product" className={` ${boostedInView ? 'hidden ' : 'fixed top-[200px]'} z-40`}>
         <motion.div className="soda">
         </motion.div>
-      </motion.div>
+      </motion.div> */}
 
-      <div ref={ref} id="header" className="container-fluid ">
+      <div ref={ref} id="header" className="container-fluid  ">
         <nav className="flex items-center justify-between h-24">
           <a href="">
             <img src="/logo.svg" className="h-11 block text-white" />
@@ -444,46 +487,12 @@ export default function Home() {
         </div>
       </div>
 
+      <div ref={boostedRef} className="h-1"></div>
 
-      <div ref={boostedRef} className="container-fluid py-20 text-white">
-        <h1>Get<br/>boosted</h1>
-      </div>
 
-      {/* footer */}
-      <div className="container-fluid pt-20 pb-10 grid grid-cols-1 gap-16 lg:grid-cols-3 text-white font-medium">
-        <div className="grid gap-2">
-          <a href="">
-            <img src="/logo.svg" className="h-11 block text-white" />
-          </a>
-          <label htmlFor="">@2025</label>
-        </div>
-        <div className="grid grid-cols-3 justify-between">
-          <div className="grid gap-1 uppercase">
-            <a href="">Home</a>
-            <a href="">Shop</a>
-            <a href="">About</a>
-          </div>
-          <div className="grid gap-1 uppercase">
-            <a href="">contact</a>
-            <a href="">terms</a>
-            <a href="">policy</a>
-          </div>
-          <div className="grid gap-1 uppercase">
-            <a href="">instagram</a>
-            <a href="">tiktok</a>
-            <a href="">facebook</a>
-          </div>
-        </div>
+     
 
-        <div className="grid gap-2 justify-end">
-          <p className="text-[0.95vw]">Text us - your 24/7 immunity consultants</p>
-          <div className="border-[1.5px] border-white rounded-md flex items-center px-4 w-fit">
-            <span className="text-[max(16px,2.4vw)]">+1 99xxxxxxxx</span>
-          </div>
-        </div>
-      </div>
-
-    </>
+    </div>
     
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Nunito, Funnel_Sans } from "next/font/google";
 import "./globals.css";
+import Footer from "./components/footer";
 
 const primaryFont = Funnel_Sans({ 
   subsets: ["latin"], 
@@ -27,6 +28,7 @@ export default function RootLayout({
         className={`${primaryFont.className} antialiased `}
       >
         {children}
+        <Footer />
       </body>
     </html>
   );

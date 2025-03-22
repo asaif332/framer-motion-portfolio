@@ -1,0 +1,36 @@
+import os
+import urllib.request
+
+def format_number(num, length=5):
+    return str(num).zfill(length)
+
+def download_image(url, file_path, retries=3):
+    for attempt in range(retries):
+        try:
+            with urllib.request.urlopen(url) as response:
+                if response.status != 200:
+                    raise Exception(f"Status Code: {response.status}")
+                
+                with open(file_path, "wb") as file:
+                    file.write(response.read())
+            print(f"✅ Downloaded: {file_path}")
+            return True
+        except Exception as e:
+            print(f"❌ Error downloading {url} (Attempt {attempt + 1}): {e}")
+    print(f"❌ Failed after {retries} attempts: {url}")
+    return False
+
+def download_all_images():
+    base_url = "https://takeboost.com/images/sequence/webp/A_"
+    download_folder = os.path.join(os.getcwd(), "public", "sequence")
+    os.makedirs(download_folder, exist_ok=True)
+    
+    image_urls = [f"{base_url}{format_number(i)}.webp" for i in range(300)]
+    
+    for index, url in enumerate(image_urls):
+        file_path = os.path.join(download_folder, f"image_{index}.webp")
+        download_image(url, file_path)
+    
+    print("🎉 All images downloaded!")
+
+download_all_images()
