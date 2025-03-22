@@ -158,7 +158,7 @@ export default function Home() {
     for (let i = 0; i < 300; i++) {
       const img = new window.Image();
       img.src = `/productt/image_${i}.png`
-      img.loading = 'lazy'
+      // img.loading = 'lazy'
       if (i == 0) {
         img0 = img
       }
